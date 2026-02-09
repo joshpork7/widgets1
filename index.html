@@ -2,116 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Notion Countdown</title>
+  <title>Countdown Widget</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: transparent;
       margin: 0;
-      padding: 12px;
+      padding: 16px;
       text-align: center;
     }
 
     input {
       font-size: 14px;
       padding: 6px;
-      margin-bottom: 8px;
+      margin-top: 8px;
     }
 
-    .clock {
-      font-size: 28px;
+    .time {
+      margin-top: 12px;
+      font-size: 20px;
       font-weight: 500;
-      margin: 8px 0 10px;
     }
 
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    button {
+    .label {
       font-size: 12px;
-      padding: 4px 8px;
-      border: 1px solid #ccc;
-      background: white;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    button:hover {
-      background: #f2f2f2;
+      opacity: 0.6;
     }
   </style>
 </head>
 <body>
 
-  <input type="time" id="timeInput">
+  <div class="label">Target time</div>
+  <input type="datetime-local" id="targetTime">
 
-  <div class="clock" id="display">00:00:00</div>
-
-  <div class="buttons">
-    <button onclick="startFromMinutes(30)">+30</button>
-    <button onclick="startFromMinutes(60)">+60</button>
-    <button onclick="startFromMinutes(90)">+90</button>
-    <button onclick="startFromMinutes(120)">+120</button>
-    <button onclick="resetTimer()">Reset</button>
-  </div>
+  <div class="time" id="countdown">—</div>
 
   <script>
-    let targetTimestamp = null;
-    let interval = null;
+    const input = document.getElementById("targetTime");
+    const countdown = document.getElementById("countdown");
 
-    const display = document.getElementById("display");
-    const input = document.getElementById("timeInput");
+    function updateCountdown() {
+      if (!input.value) {
+        countdown.textContent = "—";
+        return;
+      }
 
-    function format(ms) {
-      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-      const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-      const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-      const s = String(totalSeconds % 60).padStart(2, "0");
-      return `${h}:${m}:${s}`;
-    }
-
-    function startCountdown(targetMs) {
-      targetTimestamp = targetMs;
-      clearInterval(interval);
-
-      interval = setInterval(() => {
-        const diff = targetTimestamp - Date.now();
-
-        if (diff <= 0) {
-          display.textContent = "00:00:00";
-          clearInterval(interval);
-          return;
-        }
-
-        display.textContent = format(diff);
-      }, 1000);
-    }
-
-    input.addEventListener("change", () => {
-      const [h, m] = input.value.split(":").map(Number);
       const now = new Date();
-      const target = new Date(now);
+      const target = new Date(input.value);
+      const diff = target - now;
 
-      target.setHours(h, m, 0, 0);
+      if (diff <= 0) {
+        countdown.textContent = "Time’s up";
+        return;
+      }
 
-      const diff = target.getTime() - now.getTime();
-      startCountdown(now.getTime() + diff);
-    });
+      const hours = Math.floor(diff / 36e5);
+      const minutes = Math.floor((diff % 36e5) / 6e4);
+      const seconds = Math.floor((diff % 6e4) / 1000);
 
-    function startFromMinutes(mins) {
-      startCountdown(Date.now() + mins * 60000);
+      countdown.textContent =
+        `${hours}h ${minutes}m ${seconds}s`;
     }
 
-    function resetTimer() {
-      clearInterval(interval);
-      targetTimestamp = null;
-      input.value = "";
-      display.textContent = "00:00:00";
-    }
+    setInterval(updateCountdown, 1000);
   </script>
 
 </body>
