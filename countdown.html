@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Countdown Widget</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: transparent;
+      margin: 0;
+      padding: 16px;
+      text-align: center;
+    }
+
+    input {
+      font-size: 14px;
+      padding: 6px;
+      margin-top: 8px;
+    }
+
+    .time {
+      margin-top: 12px;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .label {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label">Target time</div>
+  <input type="datetime-local" id="targetTime">
+
+  <div class="time" id="countdown">—</div>
+
+  <script>
+    const input = document.getElementById("targetTime");
+    const countdown = document.getElementById("countdown");
+
+    function updateCountdown() {
+      if (!input.value) {
+        countdown.textContent = "—";
+        return;
+      }
+
+      const now = new Date();
+      const target = new Date(input.value);
+      const diff = target - now;
+
+      if (diff <= 0) {
+        countdown.textContent = "Time’s up";
+        return;
+      }
+
+      const hours = Math.floor(diff / 36e5);
+      const minutes = Math.floor((diff % 36e5) / 6e4);
+      const seconds = Math.floor((diff % 6e4) / 1000);
+
+      countdown.textContent =
+        `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    setInterval(updateCountdown, 1000);
+  </script>
+
+</body>
+</html>
