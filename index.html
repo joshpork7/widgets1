@@ -12,16 +12,22 @@
       text-align: center;
     }
 
+    .current-time {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+
     input {
       font-size: 14px;
       padding: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .time {
-      font-size: 28px;
-      font-weight: 500;
-      margin-bottom: 12px;
+      font-size: 42px;
+      font-weight: 600;
+      margin-bottom: 14px;
     }
 
     .buttons {
@@ -47,6 +53,8 @@
 </head>
 <body>
 
+  <div class="current-time" id="currentTime">--:--:--</div>
+
   <input type="time" id="targetInput">
 
   <div class="time" id="display">00:00:00</div>
@@ -61,10 +69,11 @@
 
   <script>
     let targetTimestamp = null;
-    let intervalId = null;
+    let countdownInterval = null;
 
     const display = document.getElementById("display");
     const input = document.getElementById("targetInput");
+    const currentTimeEl = document.getElementById("currentTime");
 
     function format(ms) {
       const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -74,16 +83,23 @@
       return `${h}:${m}:${s}`;
     }
 
+    function formatClock(date) {
+      const h = String(date.getHours()).padStart(2, "0");
+      const m = String(date.getMinutes()).padStart(2, "0");
+      const s = String(date.getSeconds()).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
     function startCountdown(targetMs) {
       targetTimestamp = targetMs;
-      clearInterval(intervalId);
+      clearInterval(countdownInterval);
 
-      intervalId = setInterval(() => {
+      countdownInterval = setInterval(() => {
         const remaining = targetTimestamp - Date.now();
 
         if (remaining <= 0) {
           display.textContent = "00:00:00";
-          clearInterval(intervalId);
+          clearInterval(countdownInterval);
           return;
         }
 
@@ -104,17 +120,20 @@
       const target = new Date(now);
 
       target.setHours(hours, minutes, 0, 0);
-
-      const diff = target.getTime() - now.getTime();
-      startCountdown(now.getTime() + diff);
+      startCountdown(target.getTime());
     });
 
     function resetTimer() {
-      clearInterval(intervalId);
+      clearInterval(countdownInterval);
       targetTimestamp = null;
       input.value = "";
       display.textContent = "00:00:00";
     }
+
+    // Live current-time clock
+    setInterval(() => {
+      currentTimeEl.textContent = formatClock(new Date());
+    }, 1000);
   </script>
 
 </body>
